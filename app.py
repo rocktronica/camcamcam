@@ -15,8 +15,12 @@ def getPrettyTimeStamp():
 def hello():
     return "Hello World!"
 
-def take_picture(filename):
-    call('imagesnap ' + filename, shell=True)
+def take_picture(filename, warmup = 1.25):
+    call(
+        'imagesnap'
+        + ((' -w ' + str(warmup)) if warmup > 0 else '')
+        + ' ' + filename
+    , shell=True)
 
 @app.route("/capture")
 def cam():
