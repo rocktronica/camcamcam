@@ -1,5 +1,13 @@
+import argparse
 import flask
 from subprocess import call
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--host", type=str, default='127.0.0.1')
+parser.add_argument("--port", type=int, default=5000)
+parser.add_argument("--debug", type=bool, default=False)
+parser.add_argument("--save", type=bool, default=False)
+arguments = parser.parse_args()
 
 app = flask.Flask(
     __name__,
@@ -28,9 +36,12 @@ def take_picture(filename = None, warmup = 1.25):
 
 @app.route("/capture")
 def cam():
-    filename = 'public/capture/' + getPrettyTimeStamp() + '.jpg'
-    take_picture(filename)
+    filename = None
+    if arguments.save:
+        filename = 'public/capture/' + getPrettyTimeStamp() + '.jpg'
+
+    filename = take_picture(filename)
     return flask.send_file(filename, mimetype='image/jpg')
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host=arguments.host, port=arguments.port, debug=arguments.debug)
