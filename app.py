@@ -7,6 +7,7 @@ parser.add_argument("--host", type=str, default='127.0.0.1')
 parser.add_argument("--port", type=int, default=5000)
 parser.add_argument("--debug", type=bool, default=False)
 parser.add_argument("--save", type=bool, default=False)
+parser.add_argument("--broadcast", type=bool, default=False)
 arguments = parser.parse_args()
 
 app = flask.Flask(
@@ -50,4 +51,8 @@ def capture(refresh=None):
     )
 
 if __name__ == "__main__":
-    app.run(host=arguments.host, port=arguments.port, debug=arguments.debug)
+    broadcast = arguments.broadcast
+    host = arguments.host if not broadcast else '0.0.0.0'
+    port = arguments.port if not broadcast else 80
+
+    app.run(host=host, port=port, debug=arguments.debug)
