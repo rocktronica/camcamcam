@@ -12,6 +12,7 @@ arguments = parser.parse_args()
 app = flask.Flask(
     __name__,
     static_folder='public',
+    template_folder=''
 )
 
 from datetime import datetime
@@ -20,8 +21,8 @@ def getPrettyTimeStamp():
     return datetime.fromtimestamp(time()).strftime('%Y%m%d_%H%M%S')
 
 @app.route("/")
-def hello():
-    return "Hello World!"
+def index():
+    return flask.render_template('index.html')
 
 def take_picture(filename = None, warmup = 1.25):
     filename = filename or '/tmp/camcamcam.jpg'
