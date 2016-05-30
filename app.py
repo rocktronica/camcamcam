@@ -1,7 +1,7 @@
-from flask import Flask
+import flask
 from subprocess import call
 
-app = Flask(
+app = flask.Flask(
     __name__,
     static_folder='public',
 )
@@ -15,13 +15,14 @@ def getPrettyTimeStamp():
 def hello():
     return "Hello World!"
 
-@app.route("/cam")
+def take_picture(filename):
+    call('imagesnap ' + filename, shell=True)
+
+@app.route("/capture")
 def cam():
     filename = 'public/capture/' + getPrettyTimeStamp() + '.jpg'
-    call('imagesnap ' + filename, shell=True)
-    return '<a href=' + filename + '>' + filename + '</a>'
-
-
+    take_picture(filename)
+    return flask.send_file(filename, mimetype='image/jpg')
 
 if __name__ == "__main__":
     app.run(debug=True)
