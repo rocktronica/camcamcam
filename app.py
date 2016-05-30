@@ -36,13 +36,18 @@ def take_picture(filename = None, warmup = 1.25):
     return filename
 
 @app.route("/capture")
-def cam():
+@app.route("/capture/<refresh>")
+def capture(refresh=None):
     filename = None
     if arguments.save:
         filename = 'public/capture/' + getPrettyTimeStamp() + '.jpg'
-
     filename = take_picture(filename)
-    return flask.send_file(filename, mimetype='image/jpg')
+
+    return (
+        flask.send_file(filename, mimetype='image/jpg'),
+        200,
+        {'Refresh': refresh + ';url=/capture/' + refresh} if refresh else {}
+    )
 
 if __name__ == "__main__":
     app.run(host=arguments.host, port=arguments.port, debug=arguments.debug)
