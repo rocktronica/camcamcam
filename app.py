@@ -2,12 +2,20 @@ import argparse
 import flask
 from subprocess import call
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--host", type=str, default='127.0.0.1')
-parser.add_argument("--port", type=int, default=5000)
-parser.add_argument("--debug", type=bool, default=False)
-parser.add_argument("--save", type=bool, default=False)
-parser.add_argument("--broadcast", type=bool, default=False)
+parser = argparse.ArgumentParser(
+    description='Web wrapper for FaceTime camera, mostly to make sure my cat is eating her food when I\'m away!',
+    usage='python app.py [arguments]')
+
+parser.add_argument("--host", type=str, default='127.0.0.1',
+    help='Host, eg 127.0.0.1 (localhost)')
+parser.add_argument("--port", type=int, default=8080,
+    help='Port, eg 8080')
+parser.add_argument("--debug", action="store_true",
+    help='Run Flask in debug mode')
+parser.add_argument("--save", action="store_true",
+    help='Save pictures to public folder instead of using /tmp')
+parser.add_argument("--broadcast", action="store_true",
+    help='Supplant host and port to 0.0.0.0 and 80, for externalizing machine')
 arguments = parser.parse_args()
 
 app = flask.Flask(
