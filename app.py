@@ -1,6 +1,6 @@
 import argparse
 import flask
-from subprocess import call
+import subprocess
 
 parser = argparse.ArgumentParser(
     description='Web wrapper for FaceTime camera, mostly to make sure my cat is eating her food when I\'m away!',
@@ -33,14 +33,27 @@ def getPrettyTimeStamp():
 def index():
     return flask.render_template('index.html')
 
+def has_program(program):
+    try:
+        subprocess.check_call(['which', program])
+    except subprocess.CalledProcessError:
+        return False
+    else:
+        return True
+
 def take_picture(filename = None, warmup = 1.25):
     filename = filename or '/tmp/camcamcam.jpg'
 
-    call(
-        'imagesnap'
-        + ((' -w ' + str(warmup)) if warmup > 0 else '')
-        + ' ' + filename
-    , shell=True)
+    if has_program('imagesnap'):
+        command = ('imagesnap'
+            + ((' -w ' + str(warmup)) if warmup > 0 else '')
+            + ' ' + filename)
+    elif has_program('raspistill'):
+        command = ('raspistill'
+            + ((' -t ' + str(warmup * 1000)) if warmup > 0 else '')
+            + ' -o ' + filename)
+
+    subprocess.call(command, shell=True)
 
     return filename
 
