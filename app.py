@@ -1,6 +1,7 @@
 import argparse
 import flask
-import subprocess
+
+import Cam
 
 parser = argparse.ArgumentParser(
     description='Web wrapper for FaceTime camera, mostly to make sure my cat is eating her food when I\'m away!',
@@ -24,6 +25,8 @@ parser.add_argument("--broadcast", action="store_true",
     help='Supplant host and port to 0.0.0.0 and 80, for externalizing machine')
 arguments = parser.parse_args()
 
+cam = Cam.Cam()
+
 app = flask.Flask(
     __name__,
     static_folder='public',
@@ -39,42 +42,13 @@ def getPrettyTimeStamp():
 def index():
     return flask.render_template('index.html')
 
-def has_program(program):
-    try:
-        subprocess.check_call(['which', program])
-    except subprocess.CalledProcessError:
-        return False
-    else:
-        return True
-
-def take_picture(filename = None, warmup = 1.25, rotate = 0,
-        height=None, width=None):
-    filename = filename or '/tmp/camcamcam.jpg'
-
-    if has_program('imagesnap'):
-        command = ('imagesnap'
-            + ((' -w ' + str(warmup)) if warmup > 0 else '')
-            + ' ' + filename)
-    elif has_program('raspistill'):
-        command = ('raspistill'
-            + ((' -t ' + str(warmup * 1000)) if warmup > 0 else '')
-            + ' --output ' + filename
-            + (' --rotation ' + str(rotate) if rotate > 0 else '')
-            + (' --height ' + str(height) if height else '')
-            + (' --width ' + str(width) if width else '')
-        )
-
-    subprocess.call(command, shell=True)
-
-    return filename
-
 @app.route("/capture")
 @app.route("/capture/<refresh>")
 def capture(refresh=None):
     filename = None
     if arguments.save:
         filename = 'public/capture/' + getPrettyTimeStamp() + '.jpg'
-    filename = take_picture(
+    filename = cam.take_picture(
         filename,
         rotate = arguments.rotate,
         height = arguments.height,
