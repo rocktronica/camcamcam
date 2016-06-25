@@ -11,7 +11,11 @@ parser.add_argument("--host", type=str, default='127.0.0.1',
 parser.add_argument("--port", type=int, default=8080,
     help='Port, eg 8080')
 parser.add_argument("--rotate", type=int, default=0,
-    help='Camera rotate')
+    help='Photo rotate, for pi')
+parser.add_argument("--height", type=int, default=None,
+    help='Photo height, for pi')
+parser.add_argument("--width", type=int, default=None,
+    help='Photo width, for pi')
 parser.add_argument("--debug", action="store_true",
     help='Run Flask in debug mode')
 parser.add_argument("--save", action="store_true",
@@ -43,7 +47,8 @@ def has_program(program):
     else:
         return True
 
-def take_picture(filename = None, warmup = 1.25, rotate = 0):
+def take_picture(filename = None, warmup = 1.25, rotate = 0,
+        height=None, width=None):
     filename = filename or '/tmp/camcamcam.jpg'
 
     if has_program('imagesnap'):
@@ -54,7 +59,10 @@ def take_picture(filename = None, warmup = 1.25, rotate = 0):
         command = ('raspistill'
             + ((' -t ' + str(warmup * 1000)) if warmup > 0 else '')
             + ' --output ' + filename
-            + (' --rotation ' + str(rotate) if rotate > 0 else ''))
+            + (' --rotation ' + str(rotate) if rotate > 0 else '')
+            + (' --height ' + str(height) if height else '')
+            + (' --width ' + str(width) if width else '')
+        )
 
     subprocess.call(command, shell=True)
 
@@ -66,7 +74,12 @@ def capture(refresh=None):
     filename = None
     if arguments.save:
         filename = 'public/capture/' + getPrettyTimeStamp() + '.jpg'
-    filename = take_picture(filename, rotate = arguments.rotate)
+    filename = take_picture(
+        filename,
+        rotate = arguments.rotate,
+        height = arguments.height,
+        width = arguments.width
+    )
 
     return (
         flask.send_file(filename, mimetype='image/jpg'),
