@@ -25,7 +25,11 @@ parser.add_argument("--broadcast", action="store_true",
     help='Supplant host and port to 0.0.0.0 and 80, for externalizing machine')
 arguments = parser.parse_args()
 
-cam = Cam.Cam()
+cam = Cam.Cam(
+    rotate = arguments.rotate,
+    height = arguments.height,
+    width = arguments.width
+)
 
 app = flask.Flask(
     __name__,
@@ -48,12 +52,7 @@ def capture(refresh=None):
     filename = None
     if arguments.save:
         filename = 'public/capture/' + getPrettyTimeStamp() + '.jpg'
-    filename = cam.take_picture(
-        filename,
-        rotate = arguments.rotate,
-        height = arguments.height,
-        width = arguments.width
-    )
+    filename = cam.take_picture(filename)
 
     return (
         flask.send_file(filename, mimetype='image/jpg'),

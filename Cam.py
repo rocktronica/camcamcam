@@ -9,21 +9,26 @@ def has_program(program):
         return True
 
 class Cam():
-    def take_picture(self, filename = None, warmup = 1.25, rotate = 0,
-            height = None, width = None):
+    def __init__(self, warmup = 1.25, rotate = 0, height=None, width=None):
+        self.warmup = warmup
+        self.rotate = rotate
+        self.height = height
+        self.width = width
+
+    def take_picture(self, filename = None):
         filename = filename or '/tmp/camcamcam.jpg'
 
         if has_program('imagesnap'):
             command = ('imagesnap'
-                + ((' -w ' + str(warmup)) if warmup > 0 else '')
+                + ((' -w ' + str(self.warmup)) if self.warmup > 0 else '')
                 + ' ' + filename)
         elif has_program('raspistill'):
             command = ('raspistill'
-                + ((' -t ' + str(warmup * 1000)) if warmup > 0 else '')
+                + ((' -t ' + str(self.warmup * 1000)) if self.warmup > 0 else '')
                 + ' --output ' + filename
-                + (' --rotation ' + str(rotate) if rotate > 0 else '')
-                + (' --height ' + str(height) if height else '')
-                + (' --width ' + str(width) if width else '')
+                + (' --rotation ' + str(self.rotate) if self.rotate > 0 else '')
+                + (' --height ' + str(self.height) if self.height else '')
+                + (' --width ' + str(self.width) if self.width else '')
             )
 
         subprocess.call(command, shell=True)
